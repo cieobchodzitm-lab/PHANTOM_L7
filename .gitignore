@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+.env
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg
+
+# Node / frontend
+node_modules/
+.next/
+out/
+dist/
+.turbo/
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Secrets & local env
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+credentials/
+
+# Deploy / runtime
+logs/
+*.pid
+.tmp/
+tmp/
+
+# Large / generated media
+artifacts/keyframes/
+*.mp4
+*.gif
+!docs/**
+
+# Solidity build
+cache/
+out/
+broadcast/
+
+# Local reports
+updates/*-tmp.md
