@@ -1,0 +1,25 @@
+[Unit]
+Description=CNOTA Engine MCP Server (v2.1 + PRAWO ZERO)
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=cnota
+Group=cnota
+WorkingDirectory=/opt/cnota
+Environment=PYTHONUNBUFFERED=1
+Environment=PATH=/opt/cnota/venv/bin:/usr/bin
+ExecStart=/opt/cnota/venv/bin/python -m transports.cnota_mcp_server
+Restart=on-failure
+RestartSec=5
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/cnota/logs
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target

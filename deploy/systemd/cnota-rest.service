@@ -1,0 +1,24 @@
+[Unit]
+Description=CNOTA Engine REST Server (v2.1 + PRAWO ZERO)
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=cnota
+Group=cnota
+WorkingDirectory=/opt/cnota
+Environment=PYTHONUNBUFFERED=1
+Environment=PATH=/opt/cnota/venv/bin:/usr/bin
+ExecStart=/opt/cnota/venv/bin/uvicorn transports.cnota_rest_server:app --host 127.0.0.1 --port 8001 --workers 1
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/cnota/logs
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target
