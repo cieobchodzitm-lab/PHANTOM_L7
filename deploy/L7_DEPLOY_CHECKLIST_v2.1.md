@@ -40,7 +40,7 @@ and Virtue Passport wiring.
 
 ## Stage 2 — VM Preparation
 
-- [ ] Ubuntu 22.04 / 24.04 LTS, 4 GB RAM minimum
+- [ ] Ubuntu 24.04 LTS, 4 GB RAM minimum
 - [ ] User `cnota` created (non-root)
 - [ ] Directory `/opt/cnota` owned by `cnota`
 - [ ] Python 3.11+ available
