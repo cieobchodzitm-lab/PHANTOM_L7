@@ -22,5 +22,5 @@ jobs:
         run: |
           node --version
           node -e "if (process.versions.node.split('.')[0] !== '26') process.exit(1)"
-      - name: Run signed passport and threshold tests
-        run: node --test packages/app/governance/core.test.mjs
+      - name: Run passport and authenticated API tests
+        run: node --test packages/app/governance/core.test.mjs packages/app/governance/api.test.mjs
