@@ -1,0 +1,26 @@
+name: Governance security tests
+
+on:
+  push:
+    branches: [main, feat/governance-backend]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  governance-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26.x'
+      - name: Verify runtime
+        run: |
+          node --version
+          node -e "if (process.versions.node.split('.')[0] !== '26') process.exit(1)"
+      - name: Run signed passport and threshold tests
+        run: node --test packages/app/governance/core.test.mjs
