@@ -47,3 +47,15 @@ python tests/test_e2e_handshake_to_registry.py
 - Virtue-aligned, anti-plutocratic governance (AGT L7)
 
 *Ad Astra. Una.*
+
+## Status zrzutki AGT / PDS HU-SAR (2026-11-13)
+
+Aktualny, publicznie bezpieczny status programu i zrzutki jest w [`STATUS.md`](STATUS.md). Skrót nowości: [`NEWS.md`](NEWS.md). Ślad audytu: [`AUDIT_TRAIL.md`](AUDIT_TRAIL.md).
+
+- Zrzutka: [https://zrzutka.pl/hkkzyn](https://zrzutka.pl/hkkzyn) (cel 555 000 zł).
+- Landing: [https://agt-lab-zrzutka.vercel.app/](https://agt-lab-zrzutka.vercel.app/).
+- 12–13.11.2026: korekta treści landingu po audycie zgodności HSA-001; ponowny audyt tekstu 13.11.2026 — PASS.
+- Program PDS HU-SAR obejmuje dwa odrębne elementy: kask RESCUE RECON i dwuwirnikowy dron zwiadowczy.
+- Pozycjonowanie: AI dla ratownictwa (SAR), dual-use defensywne. Estońska spółka AGT jest w trakcie zakładania.
+- Medal Benenati to imienny cyfrowy certyfikat. Medale NFT są 1/1 i nie dają praw do zysku. Zbiórka kapitałowa dopiero po prototypie.
+- Kolekcja Stoic Matrix / Amor Fati Bene Nati na Solanie: nie wdrożona (NOT DEPLOYED).
