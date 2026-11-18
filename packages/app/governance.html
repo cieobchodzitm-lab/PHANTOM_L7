@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-agt-panel-v1'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<title>Stoic Matrix — ocena operatorska</title>
+<style>body{font:16px system-ui;max-width:850px;margin:3rem auto;padding:1rem;line-height:1.6}label{display:block;margin-top:1rem}input,textarea{box-sizing:border-box;width:100%;padding:.6rem}button{margin:1rem .5rem 1rem 0;padding:.7rem}pre{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#1759aa}</style>
+</head>
+<body>
+<h1>Ocena governance</h1>
+<p>Panel operatorski, nie formularz logowania. Potrzebny jest aktualny token dostępu użytkownika Supabase dopuszczonego przez administratora. Nie wklejaj kluczy service_role, prywatnych kluczy ani hasła.</p>
+<p>Ocena nie wykonuje akcji. Trwały audyt, jednorazowe nonce i blockchain nie są jeszcze podłączone.</p>
+<form id="assessment" autocomplete="off">
+<label for="token">Token dostępu użytkownika</label><input id="token" type="password" autocomplete="off" required maxlength="16300">
+<label for="action">Dokładny tekst akcji podpisanej przez wystawcę</label><textarea id="action" required rows="4" maxlength="8192"></textarea>
+<label for="envelope">Paszport JSON: keyId, payload, signature</label><textarea id="envelope" required rows="8" maxlength="24000"></textarea>
+<button id="submit" type="submit">Sprawdź bez wykonywania</button><button id="clear" type="button">Wyczyść dane lokalne</button>
+</form>
+<pre id="result" role="status" aria-live="polite"></pre>
+<p><a href="/">Powrót</a></p>
+<script nonce="agt-panel-v1">
+const form = document.getElementById('assessment');
+const result = document.getElementById('result');
+const submit = document.getElementById('submit');
+document.getElementById('clear').addEventListener('click', () => { form.reset(); result.textContent = ''; });
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  submit.disabled = true;
+  result.textContent = 'Sprawdzanie…';
+  try {
+    const envelope = JSON.parse(document.getElementById('envelope').value);
+    const response = await fetch('/api/governance', {
+      method: 'POST', credentials: 'omit', cache: 'no-store',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + document.getElementById('token').value.trim() },
+      body: JSON.stringify({ action: document.getElementById('action').value, envelope }),
+      signal: AbortSignal.timeout(15000)
+    });
+    const data = await response.json();
+    result.textContent = JSON.stringify({ httpStatus: response.status, ...data }, null, 2);
+    if (response.status === 401) document.getElementById('token').value = '';
+  } catch { result.textContent = 'Błędny JSON paszportu lub API niedostępne. Akcja nie została wykonana.'; }
+  finally { submit.disabled = false; }
+});
+window.addEventListener('pagehide', () => form.reset());
+</script>
+</body>
+</html>
