@@ -1,0 +1,53 @@
+{
+  "constitutionId": "phantom-v1",
+  "constitutionVersion": "1.0.0",
+  "updated": "2026-11-27",
+  "layers": {
+    "L0_PHYSICAL_SAFETY": {
+      "description": "Physical safety for drones, frames, materials. Carbon fiber, dimensions 380mm class.",
+      "constraints": ["blade_gap_min_30mm_8in", "blade_gap_min_16mm_3in", "helmet_mass_budget_380g_docked"]
+    },
+    "L1_SECURITY": {
+      "description": "Protection against spoofing, scope creep, bypass in Moltbook agents and CAD.",
+      "constraints": ["no_scope_creep", "CAN-Bus security"]
+    },
+    "L2_LEGAL": {
+      "description": "Compliance with drone regulations, export controls, IP.",
+      "constraints": ["unarmed_ISR_SAR"]
+    },
+    "L3_ECONOMIC": {
+      "description": "Material costs, EXP system, treasury alignment.",
+      "constraints": ["EXP = propositions_per_sprint * audit_coverage_ratio"]
+    },
+    "L4_GOVERNANCE": {
+      "description": "Manipulation analysis, harm classification, ConstitutionalAudit production.",
+      "organs": ["Council", "Assembly", "Meta-Jury"]
+    },
+    "L5_VIRTUE": {
+      "description": "Virtue scoring: PRUDENTIA, IUSTITIA, FORTITUDO, TEMPERANTIA, FIDES, HUMANITAS, CONSENSUS.",
+      "target_tier": "PRAETOR",
+      "target_WVS": 80
+    }
+  },
+  "platforms": {
+    "AGT-HS-148": {
+      "alias": "HU-SAR",
+      "rev": "A",
+      "pack": "165x95x48 mm",
+      "prop": "\u00d876 (3\")",
+      "AUW_g": 280,
+      "mode": "UNARMED SPOT"
+    },
+    "AGT-HS-148-CX": {
+      "alias": "HU-SAR coaxial",
+      "rev": "A.sim",
+      "pancake": "1103",
+      "stack_mm": 42,
+      "gap_mm": 16,
+      "AUW_g": 340,
+      "dock_g": 380,
+      "mode": "UNARMED SAR"
+    }
+  },
+  "notes": "Seed generated from operational context and agt-husar-board locked specs. Full sync from Notion/GDrive pending."
+}
