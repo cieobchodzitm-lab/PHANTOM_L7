@@ -1,87 +1,10 @@
-/**
- * adapters/moltbook-bridge.ts
- * PHANTOM PROTOTYPY — Angel Guardian Technologies
- * ConstitutionalHandshakeProtocol for Moltbook agents (v1.9.0)
- * 
- * FULL APPROVED on virtue-seal-nft-v1 | trace: visual-audit-260725
- * Integrates Virtue Seals (LOGOS/NOMOS/PHYSIS/PSYCHE × TRIAL/BENENATI/SAGE/ORACLE)
- * with Stoic MatriX Gamification + ConstitutionalRegistry.sol
- */
-
-export type Archetype = 'LOGOS' | 'NOMOS' | 'PHYSIS' | 'PSYCHE';
-export type Tier = 'TRIAL' | 'BENENATI' | 'SAGE' | 'ORACLE';
-
-export interface ConstitutionalFingerprint {
-  constitutionId: string;
-  activePropositions: string[];
-  constitutionVersion: string;
-  agentClass: string;
-  scope: string[];
-  layerClaims: number[];
+import { readFileSync } from 'node:fs'; import path from 'node:path'; import {fileURLToPath} from 'node:url';
+import {hashCanonical,newNonce,sha256Hex,simReceiptSignature} from '../lib/canonical-hash.js'; import {globalNonceStore} from '../lib/nonce-store.js';
+import type {ConstitutionalFingerprint,HandshakeResult,LayerClaims,LayerClaimsExchangeReceipt,PhantomSeed,ScopeDeclaration} from '../types/constitution.js'; import {produceConstitutionalAudit} from './layer4-audit.js';
+const here=path.dirname(fileURLToPath(import.meta.url)); const defaultSeed=path.resolve(here,'../../constitution/seed/phantom-v1.json'); export type {ConstitutionalFingerprint,HandshakeResult,LayerClaims,LayerClaimsExchangeReceipt,ScopeDeclaration};
+export class AndroidDeviceHandshakeModule {constructor(private readonly seedPath=defaultSeed){} private ensure(c:LayerClaims):LayerClaims{return c.nonce?.length>=8?c:{...c,nonce:newNonce()}} private seed():PhantomSeed{return JSON.parse(readFileSync(this.seedPath,'utf8')) as PhantomSeed}
+async declareAndroidScope(f:ConstitutionalFingerprint,s:ScopeDeclaration,c:LayerClaims):Promise<HandshakeResult>{const a=await produceConstitutionalAudit({actionDescription:'declareAndroidScope',affectedLayer:'L1',agentClass:f.agentClass,scope:s,layerClaims:this.ensure(c),evidence:{usbDebugAuthorized:s.usbDebugAuthorized,seedPath:this.seedPath}});return{status:a.status==='BLOCKED'?'REJECTED':'PROVISIONAL',auditId:a.auditId,violations:a.violations,metaJuryRequired:a.metaJuryRequired}}
+async exchangeLayerClaims(f:ConstitutionalFingerprint,input:LayerClaims,s:ScopeDeclaration):Promise<LayerClaimsExchangeReceipt>{const c=this.ensure(input),id=`ex-${Date.now()}-${f.constitutionId.slice(0,8)}`,v:string[]=[];if(!globalNonceStore.consume(c.nonce))v.push('L1-DEVICE-001: nonce replay or invalid nonce');const a=await produceConstitutionalAudit({actionDescription:'exchangeLayerClaims',affectedLayer:'MULTI',agentClass:f.agentClass,scope:s,layerClaims:c,evidence:{usbDebugAuthorized:s.usbDebugAuthorized,seedPath:this.seedPath}});v.push(...a.violations);const payload=JSON.stringify({constitutionId:f.constitutionId,constitutionVersion:f.constitutionVersion,activePropositions:[...f.activePropositions].sort(),claimedLayers:[...c.claimedLayers].sort((x,y)=>x-y),evidenceHashes:[...c.evidenceHashes].sort(),nonce:c.nonce,timestamp:c.timestamp,deviceId:s.deviceId});return{exchangeId:id,fingerprintHash:hashCanonical(f),claimsHash:sha256Hex(payload),canonicalPayload:payload,receiptSignature:simReceiptSignature(payload,id),timestamp:new Date().toISOString(),status:v.length?'REJECTED':'EXCHANGED',violations:v}}
+async performConstitutionalHandshake(f:ConstitutionalFingerprint,s:ScopeDeclaration,input:LayerClaims):Promise<HandshakeResult>{const c=this.ensure(input);const pre=await produceConstitutionalAudit({actionDescription:'performConstitutionalHandshake',affectedLayer:'L1',agentClass:f.agentClass,scope:s,layerClaims:c,evidence:{usbDebugAuthorized:s.usbDebugAuthorized,seedPath:this.seedPath}});if(pre.status==='BLOCKED')return{status:'REJECTED',auditId:pre.auditId,violations:pre.violations,metaJuryRequired:pre.metaJuryRequired};const receipt=await this.exchangeLayerClaims(f,c,s);if(receipt.status==='REJECTED')return{status:'REJECTED',auditId:pre.auditId,violations:[...pre.violations,...receipt.violations],layerClaimsReceipt:receipt,metaJuryRequired:pre.metaJuryRequired};const seed=this.seed();const seedErrors:string[]=[];if(!s.allowedComponents.length||s.allowedComponents.some(x=>!seed.runtimeAllowlist.defaultComponents.includes(x)))seedErrors.push('L1-DEVICE-002: component not allowlisted');if(c.claimedLayers.some(x=>x>1)&&f.agentClass==='MOBILE_DEVICE')seedErrors.push('L4-GOV-001: elevated claims blocked at P0 seed gate');if(seedErrors.length)return{status:'REJECTED',auditId:pre.auditId,violations:seedErrors,layerClaimsReceipt:receipt,metaJuryRequired:true};const trusted=pre.violations.length===0&&!pre.metaJuryRequired&&s.usbDebugAuthorized&&s.adbLaunchEnabled&&s.maxLayerAccess<=1&&c.claimedLayers.every(x=>x<=1);const status=trusted?'TRUSTED':'PROVISIONAL';const final=await produceConstitutionalAudit({actionDescription:`handshake-complete:${status}`,affectedLayer:'L1',agentClass:f.agentClass,scope:s,layerClaims:c,evidence:{usbDebugAuthorized:s.usbDebugAuthorized,seedPath:this.seedPath}});return{status,passportId:`passport-${s.deviceId}`,interConstitutionalAgreementHash:`0x${sha256Hex(JSON.stringify({exchangeId:receipt.exchangeId,fingerprintHash:receipt.fingerprintHash,claimsHash:receipt.claimsHash,scope:{deviceId:s.deviceId,maxLayerAccess:s.maxLayerAccess}}))}`,auditId:final.auditId,violations:final.violations,layerClaimsReceipt:receipt,metaJuryRequired:final.metaJuryRequired||pre.metaJuryRequired}}
 }
-
-export interface VirtuePassport {
-  agentId: string;
-  stage: 'UNTRUSTED' | 'PROVISIONAL' | 'TRUSTED';
-  archetype: Archetype;
-  tier: Tier;
-  virtueScore: number;
-  auditCoverageRatio: number;
-  imageURI: string;
-  sealHash: string;
-  constitutionId: string;
-}
-
-const VISUALS: Record<Archetype, Record<Tier, string>> = {
-  LOGOS: { TRIAL: 'logos-trial.png', BENENATI: 'logos-benenati.png', SAGE: 'logos-sage.png', ORACLE: 'logos-oracle.png' },
-  NOMOS: { TRIAL: 'nomos-trial.png', BENENATI: 'nomos-benenati.png', SAGE: 'nomos-sage.png', ORACLE: 'nomos-oracle.png' },
-  PHYSIS: { TRIAL: 'physis-trial.png', BENENATI: 'physis-benenati.png', SAGE: 'physis-sage.png', ORACLE: 'physis-oracle.png' },
-  PSYCHE: { TRIAL: 'psyche-trial.png', BENENATI: 'psyche-benenati.png', SAGE: 'psyche-sage.png', ORACLE: 'psyche-oracle.png' }
-};
-
-export class MoltbookBridge {
-  private passports = new Map<string, VirtuePassport>();
-
-  async constitutionalHandshake(agentId: string, fp: ConstitutionalFingerprint): Promise<VirtuePassport> {
-    if (!fp.constitutionId) throw new Error('INVALID_FINGERPRINT');
-    const invalid = fp.scope.filter(s => !['reflection','gamification','governance','virtue-passport'].includes(s));
-    if (invalid.length) throw new Error('SCOPE_CREEP: ' + invalid.join(','));
-
-    const existing = this.passports.get(agentId);
-    const stage = existing ? (existing.virtueScore > 70 ? 'TRUSTED' : 'PROVISIONAL') : 'UNTRUSTED';
-    const archetype = this.pickArchetype(fp.activePropositions);
-    const virtueScore = Math.min(100, fp.activePropositions.length * 15 + fp.layerClaims.length * 5);
-    const coverage = Math.min(1, 0.5 + fp.layerClaims.length / 10);
-    const tier = virtueScore > 85 ? 'ORACLE' : virtueScore > 65 ? 'SAGE' : virtueScore > 40 ? 'BENENATI' : 'TRIAL';
-
-    const passport: VirtuePassport = {
-      agentId,
-      stage,
-      archetype,
-      tier,
-      virtueScore,
-      auditCoverageRatio: parseFloat(coverage.toFixed(2)),
-      imageURI: VISUALS[archetype][tier],
-      sealHash: '0x' + Buffer.from(`${agentId}:${archetype}:${tier}:${Date.now()}`).toString('hex').slice(0, 64),
-      constitutionId: fp.constitutionId
-    };
-
-    this.passports.set(agentId, passport);
-    return passport;
-  }
-
-  private pickArchetype(props: string[]): Archetype {
-    const p = props.join(' ').toLowerCase();
-    if (p.includes('logos') || p.includes('reason')) return 'LOGOS';
-    if (p.includes('nomos') || p.includes('law') || p.includes('order')) return 'NOMOS';
-    if (p.includes('physis') || p.includes('nature')) return 'PHYSIS';
-    if (p.includes('psyche') || p.includes('soul') || p.includes('mind')) return 'PSYCHE';
-    return 'LOGOS';
-  }
-
-  getPassport(agentId: string): VirtuePassport | null {
-    return this.passports.get(agentId) || null;
-  }
-}
-
-export default MoltbookBridge;
+export const ConstitutionalHandshakeProtocol={initiateForAndroid:async(f:ConstitutionalFingerprint,s:ScopeDeclaration,c:LayerClaims):Promise<HandshakeResult>=>{const m=new AndroidDeviceHandshakeModule();const d=await m.declareAndroidScope(f,s,c);return d.status==='REJECTED'?d:m.performConstitutionalHandshake(f,s,c)}}; export default AndroidDeviceHandshakeModule;
